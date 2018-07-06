@@ -132,6 +132,15 @@ public:
 
 
 		///
+		/// FOREST / VEGETATION
+		///
+
+		/** Landuse types. */
+		Forest,
+		Meadow,
+
+
+		///
 		/// UNSUPPORTED
 		/// 
 		

@@ -87,6 +87,14 @@ public:
 	UPROPERTY(Category = StreetMap, EditAnywhere)
 		FLinearColor HighwayColor;
 
+	/** Tree thickness */
+	UPROPERTY(Category = StreetMap, EditAnywhere, meta = (ClampMin = "0", UIMin = "0"))
+		float TreeThickness;
+
+	/** Tree vertex color */
+	UPROPERTY(Category = StreetMap, EditAnywhere)
+		FLinearColor TreeColor;
+
 	/** Streets Thickness */
 	UPROPERTY(Category = StreetMap, EditAnywhere, meta = (ClampMin = "0", UIMin = "0"))
 		float BuildingBorderThickness;
@@ -99,6 +107,10 @@ public:
 	UPROPERTY(Category = StreetMap, EditAnywhere, meta = (ClampMin = "0", UIMin = "0"))
 		float BuildingBorderZ;
 
+	/** Buildings minimal vertical height */
+	UPROPERTY(Category = StreetMap, EditAnywhere, meta = (ClampMin = "0", UIMin = "0"))
+		float BuildingMinZ;
+
 	FStreetMapMeshBuildSettings() :
 		RoadOffesetZ(0.0f),
 		bWant3DBuildings(true),
@@ -109,9 +121,12 @@ public:
 		MajorRoadColor(0.15f, 0.85f, 0.15f),
 		HighwayThickness(1400.0f),
 		HighwayColor(FLinearColor(0.25f, 0.95f, 0.25f)),
+		TreeThickness(1400.0f),
+		TreeColor(FLinearColor(0.25f, 0.95f, 0.25f)),
 		BuildingBorderThickness(20.0f),
 		BuildingBorderLinearColor(0.85f, 0.85f, 0.85f),
-		BuildingBorderZ(10.0f)
+		BuildingBorderZ(10.0f),
+		BuildingMinZ(0.0f)
 	{
 	}
 
@@ -131,6 +146,9 @@ enum EStreetMapRoadType
 	
 	/** Highway */
 	Highway,
+
+	/** Trees */
+	Tree,
 	
 	/** Other (path, bus route, etc) */
 	Other,
@@ -144,33 +162,33 @@ struct STREETMAPRUNTIME_API FStreetMapRoad
 	GENERATED_USTRUCT_BODY()
 
 	/** Name of the road */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	FString RoadName;
 	
 	/** Type of road */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	TEnumAsByte<EStreetMapRoadType> RoadType;
 	
 	/** Nodes along this road, one at each point in the RoadPoints list */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	TArray<int32> NodeIndices;
 
 	/** List of all of the points on this road, one for each node in the NodeIndices list */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	TArray<FVector2D> RoadPoints;
 	
 	// @todo: Performance: Bounding information could be computed at load time if we want to avoid the memory cost of storing it
 
 	/** 2D bounds (min) of this road's points */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	FVector2D BoundsMin;
 	
 	/** 2D bounds (max) of this road's points */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	FVector2D BoundsMax;
 
 	/** True if this node is a one way.  One way nodes are only traversable in the order the nodes are listed in the above array. */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	uint8 bIsOneWay : 1;
 
 
@@ -221,11 +239,11 @@ struct STREETMAPRUNTIME_API FStreetMapRoadRef
 	GENERATED_USTRUCT_BODY()
 
 	/** Index of road in the list of all roads in this street map */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	int32 RoadIndex;
 	
 	/** Index of the point along road where this node exists */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	int32 RoadPointIndex;
 };
 
@@ -238,7 +256,7 @@ struct STREETMAPRUNTIME_API FStreetMapNode
 	
 	/** All of the roads that intersect this node.  We have references to each of these roads, as well as the point along each
 	    road where this node exists */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	TArray<FStreetMapRoadRef> RoadRefs;
 
 	/** Returns this node's index */
@@ -276,29 +294,29 @@ struct STREETMAPRUNTIME_API FStreetMapBuilding
 	GENERATED_USTRUCT_BODY()
 
 	/** Name of the building */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	FString BuildingName;
 
 	/** Polygon points that define the perimeter of the building */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	TArray<FVector2D> BuildingPoints;
 
 	/** Height of the building in meters (if known, otherwise zero) */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	float Height;
 
 	/** Levels of the building (if known, otherwise zero) */
-	UPROPERTY(Category = StreetMap, EditAnywhere)
+	UPROPERTY(Category = StreetMap, BlueprintReadOnly, EditAnywhere)
 	int BuildingLevels;
 
 	// @todo: Performance: Bounding information could be computed at load time if we want to avoid the memory cost of storing it
 
 	/** 2D bounds (min) of this building's points */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	FVector2D BoundsMin;
 	
 	/** 2D bounds (max) of this building's points */
-	UPROPERTY( Category=StreetMap, EditAnywhere )
+	UPROPERTY( Category=StreetMap, BlueprintReadOnly, EditAnywhere )
 	FVector2D BoundsMax;
 };
 
@@ -327,6 +345,18 @@ public:
 	TArray<FStreetMapRoad>& GetRoads()
 	{
 		return Roads;
+	}
+
+	TArray<int32> GetRoadIndices(FStreetMapRoad Road)
+	{
+		return Road.NodeIndices;
+	}
+
+	/** List of all of the points on this road, one for each node in the NodeIndices list */
+	
+	TArray<FVector2D> GetRoadPoints(FStreetMapRoad Road)
+	{
+		return Road.RoadPoints;
 	}
 	
 	/** Gets the nodes on the map (read only.)  Nodes describe intersections between roads */
@@ -849,6 +879,7 @@ inline float FStreetMapNode::GetConnectionCost( const UStreetMap& StreetMap, con
 				break;
 
 			case EStreetMapRoadType::Street:
+			case EStreetMapRoadType::Tree:
 			case EStreetMapRoadType::Other:
 				SpeedLimit = StreetSpeed;
 				TrafficFactor = StreetTrafficFactor;

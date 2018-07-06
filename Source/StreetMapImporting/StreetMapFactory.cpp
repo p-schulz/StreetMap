@@ -114,6 +114,11 @@ bool UStreetMapFactory::LoadFromOpenStreetMapXMLFile( UStreetMap* StreetMap, FSt
 			case FOSMFile::EOSMWayType::Road:	// @todo: Consider excluding "Road" from our data set, as it could be a highway that wasn't properly tagged in OSM yet
 				RoadType = EStreetMapRoadType::Street;
 				break;
+
+			case FOSMFile::EOSMWayType::Forest:
+			case FOSMFile::EOSMWayType::Meadow:
+				RoadType = EStreetMapRoadType::Tree;
+				break;
 		}
 
 		if( RoadType != EStreetMapRoadType::Other )

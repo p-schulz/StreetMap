@@ -25,10 +25,36 @@ public:
 	UStreetMapComponent(const class FObjectInitializer& ObjectInitializer);
 
 	/** @return Gets the street map object associated with this component */
-	UStreetMap* GetStreetMap()
+	UFUNCTION(BlueprintCallable, Category = "StreetMap") UStreetMap* GetStreetMap()
 	{
 		return StreetMap;
 	}
+
+	UFUNCTION(BlueprintCallable, Category = "StreetMap") TArray<FStreetMapRoad>& GetRoadsOSM()
+	{
+		return StreetMap->GetRoads();
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "StreetMap") TArray<FStreetMapNode>& GetNodesOSM()
+	{
+		return StreetMap->GetNodes();
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "StreetMap") TArray<FStreetMapBuilding>& GetBuildingsOSM()
+	{
+		return StreetMap->GetBuildings();
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "StreetMap") FVector2D GetBoundsMinOSM()
+	{
+		return StreetMap->GetBoundsMin();
+	}
+
+	UFUNCTION(BlueprintCallable, Category = "StreetMap") FVector2D GetBoundsMaxOSM()
+	{
+		return StreetMap->GetBoundsMax();
+	}
+
 
 	/** Returns StreetMap asset object name  */
 	FString GetStreetMapAssetName() const;
@@ -87,8 +113,6 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "StreetMap")
 		void SetStreetMap(UStreetMap* NewStreetMap, bool bClearPreviousMeshIfAny = false, bool bRebuildMesh = false);
-
-
 
 	//** Begin Interface_CollisionDataProvider Interface */
 	virtual bool GetPhysicsTriMeshData(struct FTriMeshCollisionData* CollisionData, bool InUseAllTriData) override;

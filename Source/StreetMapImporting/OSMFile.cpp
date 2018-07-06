@@ -204,6 +204,24 @@ bool FOSMFile::ProcessAttribute( const TCHAR* AttributeName, const TCHAR* Attrib
 			{
 				CurrentWayInfo->Ref = AttributeValue;
 			}
+			else if( !FCString::Stricmp( CurrentWayTagKey, TEXT( "landuse") ) )
+			{
+				EOSMWayType WayType = EOSMWayType::Other;
+
+				if( !FCString::Stricmp( AttributeValue, TEXT( "forest" ) ) )
+				{
+					WayType = EOSMWayType::Forest;
+				}
+				else if( !FCString::Stricmp( AttributeValue, TEXT( "meadow" ) ) )
+				{
+					WayType = EOSMWayType::Meadow;
+				}
+				else
+				{
+					// Type not recognized
+				}
+				CurrentWayInfo->WayType = WayType;
+			}
 			else if( !FCString::Stricmp( CurrentWayTagKey, TEXT( "highway" ) ) )
 			{
 				EOSMWayType WayType = EOSMWayType::Other;

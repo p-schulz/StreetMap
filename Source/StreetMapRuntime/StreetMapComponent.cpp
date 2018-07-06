@@ -170,8 +170,11 @@ void UStreetMapComponent::GenerateCollision()
 	}
 
 	// Rebuild the body setup
+#if WITH_EDITOR || WITH_RUNTIME_PHYSICS_COOKING
 	StreetMapBodySetup->InvalidatePhysicsData();
+#endif
 	StreetMapBodySetup->CreatePhysicsMeshes();
+
 	UpdateNavigationIfNeeded();
 }
 
@@ -227,6 +230,7 @@ void UStreetMapComponent::GenerateMesh()
 	const float BuildingBorderThickness = MeshBuildSettings.BuildingBorderThickness;
 	FLinearColor BuildingBorderLinearColor = MeshBuildSettings.BuildingBorderLinearColor;
 	const float BuildingBorderZ = MeshBuildSettings.BuildingBorderZ;
+	const float BuildingMinZ = MeshBuildSettings.BuildingMinZ;
 	const FColor BuildingBorderColor( BuildingBorderLinearColor.ToFColor( false ) );
 	const FColor BuildingFillColor( FLinearColor( BuildingBorderLinearColor * 0.33f ).CopyWithNewOpacity( 1.0f ).ToFColor( false ) );
 	/////////////////////////////////////////////////////////
@@ -243,7 +247,7 @@ void UStreetMapComponent::GenerateMesh()
 
 		const auto& Roads = StreetMap->GetRoads();
 		const auto& Nodes = StreetMap->GetNodes();
-		const auto& Buildings = StreetMap->GetBuildings();
+		auto& Buildings = StreetMap->GetBuildings();
 
 		for( const auto& Road : Roads )
 		{
@@ -288,7 +292,7 @@ void UStreetMapComponent::GenerateMesh()
 		TArray< FVector > TempPoints;
 		for( int32 BuildingIndex = 0; BuildingIndex < Buildings.Num(); ++BuildingIndex )
 		{
-			const auto& Building = Buildings[ BuildingIndex ];
+			auto& Building = Buildings[ BuildingIndex ];
 
 			// Building mesh (or filled area, if the building has no height)
 
@@ -313,8 +317,11 @@ void UStreetMapComponent::GenerateMesh()
 					else if (Building.BuildingLevels > 0) {
 						BuildingFillZ = (float)Building.BuildingLevels * BuildingLevelFloorFactor;
 					}
+					else { 
+						Building.Height = BuildingMinZ;
+					}
 				}		
-
+	
 				// Top of building
 				{
 					TempPoints.SetNum( Building.BuildingPoints.Num(), false );
